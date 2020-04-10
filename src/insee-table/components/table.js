@@ -7,10 +7,50 @@ import Rows from './table-rows'
 import Pager from './table-pager'
 import { reducer, initialState, actions } from './manage-state'
 
+function mergeOne(state, name, props) {
+    if (props !== undefined) {
+        return { ...state, [name]: props }
+    }
+    return state
+}
+
+function mergePropsWithInitialState({ start }) {
+    return mergeOne(initialState, 'start', start)
+}
+
 /** */
-function InseeTable({ fetch, columns }) {
-    const [state, dispatch] = useReducer(reducer, initialState)
+function InseeTable(props) {
+    const {
+        fetch,
+        columns,
+        start: startFromProps,
+        rows: rowsFromProps,
+        rowsPerPageOptions,
+    } = props
+    const [state, dispatch] = useReducer(
+        reducer,
+        mergePropsWithInitialState(props)
+    )
     const { start, rows, maxRows, data } = state
+
+    useEffect(
+        function () {
+            if (startFromProps !== undefined) {
+                dispatch(actions.onChangePage(startFromProps))
+            }
+        },
+        [startFromProps]
+    )
+
+    useEffect(
+        function () {
+            if (rowsFromProps !== undefined) {
+                dispatch(actions.onChangeRows(rowsFromProps))
+            }
+        },
+        [rowsFromProps]
+    )
+
     useEffect(
         function () {
             async function load() {
@@ -39,23 +79,27 @@ function InseeTable({ fetch, columns }) {
                 </TableBody>
             </Table>
             <Pager
-                rowsPerPageOptions={[3, 4]}
+                rowsPerPageOptions={rowsPerPageOptions}
                 start={start}
                 rows={rows}
                 maxRows={maxRows}
                 onChangePage={function (_, newPage) {
                     dispatch(actions.onChangePage(newPage))
                 }}
-                onChangeRowsPerPage={function () {}}
+                onChangeRowsPerPage={function (e) {
+                    dispatch(actions.onChangeRows(e.target.value))
+                }}
             />
         </>
     )
 }
 
 InseeTable.propTypes = {
+    start: PropTypes.number,
     fetch: PropTypes.func,
     columns: columnsProps,
+    rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
 }
-InseeTable.defaultProps = { fetch: undefined }
+InseeTable.defaultProps = { fetch: undefined, start: 0 }
 
 export default InseeTable

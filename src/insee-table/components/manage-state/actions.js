@@ -9,3 +9,9 @@ export const onChangePage = (start) => ({
     type: ON_CHANGE_PAGE,
     payload: { start },
 })
+
+export const ON_CHANGE_ROWS = 'insee-table/on-change-rows'
+export const onChangeRows = (rows) => ({
+    type: ON_CHANGE_ROWS,
+    payload: { rows },
+})

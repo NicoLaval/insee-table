@@ -10,6 +10,11 @@ function reducer(state, { type, payload }) {
             const { start } = payload
             return { ...state, start }
 
+        case actions.ON_CHANGE_ROWS: {
+            const { rows } = payload
+            return { ...state, rows }
+        }
+
         default:
             return state
     }
